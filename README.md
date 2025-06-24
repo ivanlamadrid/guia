@@ -47,3 +47,4 @@ src/
         └── db/
             └── migration/
                 └── V1__init.sql           # [V]  DDL con Flyway/Liquibase (opcional)
+```
