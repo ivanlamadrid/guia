@@ -1,5 +1,7 @@
 # guia
 
+https://start.spring.io/#!type=maven-project&language=java&platformVersion=3.3.13&packaging=jar&jvmVersion=21&groupId=io.apiary.platform.u%3Ccodigo%3E&artifactId=si729pc2u%3Ccodigo%3E&name=si729pc2u%3Ccodigo%3E&description=Demo%20project%20for%20Spring%20Boot&packageName=io.apiary.platform.u%3Ccodigo%3E&dependencies=web,data-jpa,postgresql,lombok,validation
+
 ```text
 src/
 └── main/
