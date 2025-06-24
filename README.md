@@ -4,46 +4,46 @@
 src/
 └── main/
     ├── java/
-    │   └── pe.medelect.platform.u<codigo>/
-    │       ├── shared/
+    │   └── <root-package>/                      # [V]  io.apiary.platform.u<codigo>  |  pe.medelect.platform.u<codigo>
+    │       ├── shared/                          # [E]  utilidades reutilizables
     │       │   ├── domain/
     │       │   │   ├── model/
-    │       │   │   │   ├── Auditable.java
-    │       │   │   │   └── BaseEntity.java
+    │       │   │   │   ├── Auditable.java       # [E]  timestamps createdAt / updatedAt
+    │       │   │   │   └── BaseEntity.java      # [E]  superclase opcional con id
     │       │   │   └── exceptions/
-    │       │   │       └── BusinessRuleException.java
+    │       │   │       └── BusinessRuleException.java   # [E]  dominio → HTTP 409/400
     │       │   └── infrastructure/
     │       │       ├── naming/
-    │       │       │   └── SnakePluralNamingStrategy.java
+    │       │       │   └── SnakePluralNamingStrategy.java   # [E]  CamelCase → snake_case + plural
     │       │       └── config/
-    │       │           ├── JpaConfiguration.java
-    │       │           └── OpenApiConfig.java
-    │       └── work/
+    │       │           ├── JpaConfiguration.java    # [E]  habilita JPA + auditing
+    │       │           └── OpenApiConfig.java       # [E]  activa springdoc-openapi
+    │       └── <context>/                           # [V]  simkl | work
     │           ├── domain/
     │           │   ├── model/
-    │           │   │   ├── WorkOrder.java
-    │           │   │   ├── WorkType.java
+    │           │   │   ├── <AggregateRoot>.java     # [V]  Movie.java | WorkOrder.java
+    │           │   │   ├── <Enum>.java              # [V]  MovieType.java | WorkType.java
     │           │   │   └── valueobject/
-    │           │   │       ├── MedicalEquipmentId.java
-    │           │   │       ├── StaffId.java
-    │           │   │       └── HealthInstitutionId.java
+    │           │   │       ├── FirstVO.java         # [V]  CountryId / MedicalEquipmentId
+    │           │   │       ├── SecondVO.java        # [V]  DirectorId / StaffId
+    │           │   │       └── ThirdVO.java         # [V]  DistributedId / HealthInstitutionId
     │           │   └── repository/
-    │           │       └── WorkOrderRepository.java
+    │           │       └── <AggregateRoot>Repository.java   # [E]  interface Spring Data
     │           ├── application/
     │           │   ├── command/
-    │           │   │   └── CreateWorkOrderCommand.java
+    │           │   │   └── Create<AggregateRoot>Command.java   # [V]  DTO de entrada POST
     │           │   └── service/
-    │           │       └── WorkOrderCommandService.java
+    │           │       └── <AggregateRoot>CommandService.java  # [E]  orquesta reglas de negocio
     │           ├── infrastructure/
     │           │   └── persistence/
-    │           │       └── JpaWorkOrderRepositoryImpl.java
+    │           │       └── Jpa<AggregateRoot>RepositoryImpl.java   # [V]  solo si necesitas SQL custom
     │           └── interfaces/
     │               ├── rest/
-    │               │   └── WorkOrderController.java
+    │               │   └── <AggregateRoot>Controller.java    # [E]  endpoint REST
     │               └── mapper/
-    │                   └── WorkOrderMapper.java
+    │                   └── <AggregateRoot>Mapper.java        # [E]  Entity ↔ Resource/DTO
     └── resources/
-        ├── application.yml
+        ├── application.yml                # [E]  server.port (8096 / 8095), schema (apiary / medelect)
         └── db/
             └── migration/
-                └── V1__init.sql
+                └── V1__init.sql           # [V]  DDL con Flyway/Liquibase (opcional)
