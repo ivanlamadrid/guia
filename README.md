@@ -49,14 +49,16 @@ src/
                 └── V1__init.sql           # [V]  DDL con Flyway/Liquibase (opcional)
 ```
 
+# Plantillas esenciales (Simkl / Medelect)  
 
-Copias-pega, remplaza los literales <root-package> (paquete base con tu código), <context> (simkl ó work) y los nombres variables en cada caso.
+> Copia-pega y reemplaza `<root-package>`, `<context>` y variables según tu práctica.
 
-1 · Carpeta shared (idéntica para WS51 y WS53)
-Auditable.java — timestamps comunes [E]
-java
-Copiar
-Editar
+---
+
+## 1 · Carpeta **shared** (común a ambos casos)
+
+### `Auditable.java` — timestamps comunes [E]
+```java
 package <root-package>.shared.domain.model;
 
 import jakarta.persistence.Column;
@@ -66,13 +68,9 @@ import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 import java.time.OffsetDateTime;
 
-/**
- * Super-type that adds automatic creation/update timestamps
- * to every aggregate root that extends it.
- */
+/** Adds createdAt / updatedAt timestamps. */
 @Getter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
@@ -86,10 +84,10 @@ public abstract class Auditable {
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 }
-BaseEntity.java — ID autogenerado [E] (opcional, pero útil)
-java
-Copiar
-Editar
+```
+
+### `BaseEntity.java` — ID autogenerado [E] (opcional, pero útil)
+```java
 package <root-package>.shared.domain.model;
 
 import jakarta.persistence.GeneratedValue;
@@ -107,10 +105,11 @@ public abstract class BaseEntity extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 }
-BusinessRuleException.java — excepción de dominio [E]
-java
-Copiar
-Editar
+
+```
+
+### `BusinessRuleException.java` — excepción de dominio [E]
+```java
 package <root-package>.shared.domain.exceptions;
 
 /** Thrown when a business invariant is violated. */
@@ -119,10 +118,11 @@ public class BusinessRuleException extends RuntimeException {
         super(message);
     }
 }
-SnakePluralNamingStrategy.java — convención snake_case + plural [E]
-java
-Copiar
-Editar
+
+```
+
+### `SnakePluralNamingStrategy.java` — convención snake_case + plural [E]
+```java
 package <root-package>.shared.infrastructure.naming;
 
 import org.hibernate.boot.model.naming.Identifier;
@@ -152,10 +152,11 @@ public class SnakePluralNamingStrategy extends PhysicalNamingStrategyStandardImp
         return text.replaceAll("([a-z])([A-Z]+)", "$1_$2").toLowerCase();
     }
 }
-JpaConfiguration.java — activa JPA + auditoría [E]
-java
-Copiar
-Editar
+
+```
+
+### `JpaConfiguration.java` — activa JPA + auditoría [E]
+```java
 package <root-package>.shared.infrastructure.config;
 
 import org.springframework.context.annotation.Configuration;
@@ -165,10 +166,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @Configuration
 @EnableJpaAuditing
 public class JpaConfiguration { }
-OpenApiConfig.java — Swagger / springdoc [E]
-java
-Copiar
-Editar
+
+```
+
+### `OpenApiConfig.java` — Swagger / springdoc [E]
+```java
 package <root-package>.shared.infrastructure.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -181,14 +183,12 @@ import org.springframework.context.annotation.Configuration;
         info = @Info(title = "SI729 Practice API", version = "v1")
 )
 public class OpenApiConfig { }
-2 · Bounded-context simkl (WS51 – Movies)
-Paquete raíz: io.apiary.platform.u<codigo>.simkl
+```
+## 2 · Bounded-context simkl (WS51 – Movies)
+### 2.1 Dominio
 
-2.1 Dominio
-MovieType.java [Enum] [V]
-java
-Copiar
-Editar
+### `MovieType.java` [Enum] [V]
+```java
 package <root-package>.simkl.domain.model;
 
 import java.util.Locale;
@@ -202,10 +202,11 @@ public enum MovieType {
         return MovieType.valueOf(name.toUpperCase(Locale.ROOT));
     }
 }
-Value Objects [V]
-java
-Copiar
-Editar
+
+```
+
+### Value Objects [V]
+```java
 package <root-package>.simkl.domain.model.valueobject;
 
 import jakarta.validation.constraints.*;
@@ -223,10 +224,11 @@ public record DirectorId(
 
 public record DistributedId(
         @NotNull @Positive Long value) { }
-Movie.java — aggregate root [V]
-java
-Copiar
-Editar
+
+```
+
+### `Movie.java` — aggregate root [V]
+```java
 package <root-package>.simkl.domain.model;
 
 import <root-package>.shared.domain.model.BaseEntity;
@@ -305,10 +307,12 @@ public class Movie extends BaseEntity {
         return m;
     }
 }
-2.2 Repositorio
-java
-Copiar
-Editar
+
+```
+
+### 2.2 Repositorio
+
+```java
 package <root-package>.simkl.domain.repository;
 
 import <root-package>.simkl.domain.model.Movie;
@@ -320,11 +324,12 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     boolean existsByTitleAndDirectorIdAndMovieType(
             String title, DirectorId directorId, MovieType movieType);
 }
-2.3 Aplicación (Command side)
-CreateMovieCommand.java [V]
-java
-Copiar
-Editar
+```
+
+### 2.3 Aplicación (Command side)
+
+### `CreateMovieCommand.java` [V]
+```java
 package <root-package>.simkl.application.command;
 
 import jakarta.validation.constraints.*;
@@ -341,10 +346,11 @@ public record CreateMovieCommand(
         @NotBlank String movieType,
         @NotNull LocalDate releaseAt
 ) { }
-MovieCommandService.java [E]
-java
-Copiar
-Editar
+
+```
+
+### `MovieCommandService.java` [E]
+```java
 package <root-package>.simkl.application.service;
 
 import <root-package>.shared.domain.exceptions.BusinessRuleException;
@@ -385,11 +391,12 @@ public class MovieCommandService {
         return repo.save(movie);
     }
 }
-2.4 Interfaces (REST)
-MovieMapper.java — Entity ↔ Resource [E]
-java
-Copiar
-Editar
+
+```
+### 2.4 Interfaces (REST)
+
+### `MovieMapper.java` — Entity ↔ Resource [E]
+```java
 package <root-package>.simkl.interfaces.mapper;
 
 import <root-package>.simkl.domain.model.Movie;
@@ -409,10 +416,11 @@ public class MovieMapper {
             Long id, String title, String movieType,
             Integer imdbRating, Float budget, java.time.LocalDate releaseAt) { }
 }
-MovieController.java [E]
-java
-Copiar
-Editar
+
+```
+
+### `MovieController.java` [E]
+```java
 package <root-package>.simkl.interfaces.rest;
 
 import <root-package>.simkl.application.command.CreateMovieCommand;
@@ -445,16 +453,14 @@ public class MovieController {
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 }
-3 · Bounded-context work (WS53 – Work Orders)
-Paquete raíz: pe.medelect.platform.u<codigo>.work
 
-(El patrón es idéntico; solo se muestran los archivos variables)
+```
+## 3 · Bounded-context work (WS53 – Work Orders)
 
-3.1 Dominio
-WorkType.java
-java
-Copiar
-Editar
+### 3.1 Dominio
+
+### `WorkType.java`
+```java
 package <root-package>.work.domain.model;
 
 import java.util.Locale;
@@ -469,10 +475,10 @@ public enum WorkType {
         return WorkType.valueOf(name.toUpperCase(Locale.ROOT));
     }
 }
-Value Objects
-java
-Copiar
-Editar
+```
+### Value Objects
+
+```java
 package <root-package>.work.domain.model.valueobject;
 
 import jakarta.validation.constraints.*;
@@ -485,10 +491,11 @@ public record StaffId(
 
 public record HealthInstitutionId(
         @NotNull @Positive Long value) { }
-WorkOrder.java
-java
-Copiar
-Editar
+
+```
+
+### `WorkOrder.java`
+```java
 package <root-package>.work.domain.model;
 
 import <root-package>.shared.domain.model.BaseEntity;
@@ -560,10 +567,11 @@ public class WorkOrder extends BaseEntity {
         return w;
     }
 }
-3.2 Repositorio
-java
-Copiar
-Editar
+
+```
+### 3.2 Repositorio
+
+```java
 package <root-package>.work.domain.repository;
 
 import <root-package>.work.domain.model.WorkOrder;
@@ -577,11 +585,12 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long> {
     boolean existsByMedicalEquipmentIdAndStaffIdAndPlannedAt(
             MedicalEquipmentId medicalEquipmentId, StaffId staffId, LocalDate plannedAt);
 }
-3.3 Aplicación
-CreateWorkOrderCommand.java
-java
-Copiar
-Editar
+
+```
+### 3.3 Aplicación
+
+### `CreateWorkOrderCommand.java`
+```java
 package <root-package>.work.application.command;
 
 import jakarta.validation.constraints.*;
@@ -596,10 +605,10 @@ public record CreateWorkOrderCommand(
         @Positive Float amount,
         @NotNull LocalDate plannedAt
 ) { }
-WorkOrderCommandService.java
-java
-Copiar
-Editar
+```
+
+### `WorkOrderCommandService.java`
+```java
 package <root-package>.work.application.service;
 
 import <root-package>.shared.domain.exceptions.BusinessRuleException;
@@ -640,11 +649,11 @@ public class WorkOrderCommandService {
         return repo.save(w);
     }
 }
-3.4 Interfaces
-WorkOrderMapper.java
-java
-Copiar
-Editar
+```
+### 3.4 Interfaces
+
+### `WorkOrderMapper.java`
+```java
 package <root-package>.work.interfaces.mapper;
 
 import <root-package>.work.domain.model.WorkOrder;
@@ -668,10 +677,10 @@ public class WorkOrderMapper {
             String workType, Integer priority,
             Float amount, java.time.LocalDate plannedAt) { }
 }
-WorkOrderController.java
-java
-Copiar
-Editar
+```
+
+### `WorkOrderController.java`
+```java
 package <root-package>.work.interfaces.rest;
 
 import <root-package>.work.application.command.CreateWorkOrderCommand;
@@ -705,11 +714,12 @@ public class WorkOrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 }
-4 · application.yml (cambia solo puerto & schema)
-Simkl – src/main/resources/application.yml
-yaml
-Copiar
-Editar
+```
+## 4 · application.yml (cambia solo puerto & schema)
+
+### Simkl – src/main/resources/application.yml
+
+```yaml
 server:
   port: 8096
 
@@ -724,16 +734,15 @@ spring:
     properties:
       hibernate:
         physical_naming_strategy: <root-package>.shared.infrastructure.naming.SnakePluralNamingStrategy
-Medelect – idéntico pero:
-yaml
-Copiar
-Editar
-server.port: 8095
-spring.datasource.url: jdbc:postgresql://localhost:5432/postgres?currentSchema=medelect
-5 · Excepción global (opcional pero aconsejada)
-java
-Copiar
-Editar
+
+```
+
+### Medelect – idéntico pero:
+```yaml
+```
+## 5 · Excepción global (opcional pero aconsejada)
+
+```java
 package <root-package>.shared.infrastructure.config;
 
 import <root-package>.shared.domain.exceptions.BusinessRuleException;
@@ -765,13 +774,5 @@ public class RestExceptionHandler {
                 .body(Map.of("error", ex.getMessage()));
     }
 }
-➡️ Cómo usar estas plantillas
-Copia cada bloque en su ruta correspondiente.
 
-Sustituye \<root-package> y \<codigo> una sola vez; tu IDE ajustará el resto.
-
-Ajusta únicamente los archivos marcados [V] cuando cambies de WS51 a WS53.
-
-Ejecuta ./mvnw spring-boot:run y verifica el endpoint (curl o Postman).
-
-¡Con estos archivos cubres toda la rúbrica “esencial” para ambas prácticas!
+```
