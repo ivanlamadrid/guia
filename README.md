@@ -778,3 +778,60 @@ public class RestExceptionHandler {
 }
 
 ```
+## application.properties
+```properties
+###############################################################################
+#  Spring Boot — application.properties                                       #
+#  Configuración por defecto: PostgreSQL                                      #
+#  Si deseas usar base en memoria (H2) solo comenta la sección de Postgres    #
+#  y descomenta la de H2 que está al final.                                   #
+###############################################################################
+
+## --- Configuración del servidor (cambia el puerto según tu práctica) ------
+#  Simkl  ➜  8096   |  Medelect ➜  8095
+server.port=8096
+
+## --- DATASOURCE: PostgreSQL (activo por defecto) --------------------------
+spring.datasource.url=jdbc:postgresql://localhost:5432/postgres?currentSchema=apiary   # ← cambia "apiary" por "medelect" si es el otro caso
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+## --- JPA / Hibernate ------------------------------------------------------
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.properties.hibernate.physical_naming_strategy=<root-package>.shared.infrastructure.naming.SnakePluralNamingStrategy
+
+###############################################################################
+#  ⚠️  ALTERNATIVA: Base de datos en memoria (H2)                            #
+#  Descomenta las líneas de esta sección y comenta las de PostgreSQL          #
+#  cuando quieras probar rápidamente sin instalar Postgres.                   #
+###############################################################################
+# spring.datasource.url=jdbc:h2:mem:demo;DB_CLOSE_DELAY=-1
+# spring.datasource.driver-class-name=org.h2.Driver
+# spring.datasource.username=sa
+# spring.datasource.password=
+# spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+###############################################################################
+
+```
+
+
+![image](https://github.com/user-attachments/assets/acf8fa98-60c7-406c-ad18-420d415516eb)
+
+```xml
+<dependency>
+  <groupId>com.h2database</groupId>
+  <artifactId>h2</artifactId>
+  <scope>runtime</scope>
+</dependency>
+```
+
+```xml
+<dependency>
+  <groupId>org.springdoc</groupId>
+  <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+  <version>2.5.0</version>
+</dependency>
+```
